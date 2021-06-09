@@ -222,6 +222,7 @@ var toggle = function(){
 //============================================
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266HTTPClient.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
@@ -290,35 +291,49 @@ void otaconnect(){
 void setup()
 {
   otaconnect();
-  WiFi.begin(ssid, password);  
-  while (WiFi.status() != WL_CONNECTED)
-    delay(500);
-  server.begin();                         
+  server.begin();                         //inicializamos el servidor
+  WiFi.mode(WIFI_STA);    // Accsses Point por software
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+  delay(500);
+  Serial.print(".");
+  }
+  WiFi.setAutoReconnect(true);
+  Serial.println("WiFi conectada.");
+  Serial.println();
+  WiFi.printDiag(Serial);
+  Serial.println();
+  Serial.print("STA dirección IP: ");
+  Serial.println(WiFi.localIP());
+  server.begin();
+  Serial.println("Servidor inicializado.");                       
 }
 //=================================================================
 void loop()
 {
   ArduinoOTA.handle();
+  // STATION CONFIGURATION
   WiFiClient client = server.available();  
   if (!client) {
     return;
   }
+  Serial.println("""""""""""""""""");
+  Serial.println("INICIO DE PETICION");
 
-  // Espera hasta que el cliente envía alguna petición  while(!client.available()){
-    delay(1);
-  }
 
   // Lee la petición
-  String peticion = client.readStringUntil('\r');  client.flush();
+  // LEE PETICIONES
+  String peticion = client.readStringUntil('r');
+  client.flush();
   client.println("HTTP/1.1 200 OK");
   client.println("");
-  Client.println(webpageCode0);
-  Client.println(webpageCode1);
-  Client.println(webpageCode2);
-  Client.println(webpageCode3);
-  Client.println(webpageCode4);
-  Client.println(webpageCode5);
-  Client.println(webpageCode6);
-  Client.println(webpageCode7);
-  Client.println(webpageCode8);
+  client.println(webpageCode0);
+  client.println(webpageCode1);
+  client.println(webpageCode2);
+  client.println(webpageCode3);
+  client.println(webpageCode4);
+  client.println(webpageCode5);
+  client.println(webpageCode6);
+  client.println(webpageCode7);
+  client.println(webpageCode8);
 }
