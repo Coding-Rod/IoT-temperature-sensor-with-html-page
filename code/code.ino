@@ -32,9 +32,8 @@ char webpageCode1[] =R"=====(
     <h5><i class="fa fa-microchip"></i> Interaction</h5>
   </div>
   <div class="w3-bar-block">
-	  <div id = "toggleauto" onclick="toggle()">
-      <!-- <a href="#" class="w3-bar-item w3-button w3-padding w3-green"><i class="fa fa-hand-stop-o fa-fw"></i>&nbsp; Manual</a> -->
-      <a href="#" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-power-off fa-fw"></i>&nbsp; Auto</a>
+	  <div id = "toggleauto" onclick="toggle()">)=====";
+char webpageCode1_1[] =R"=====(
     </div>
 	  <a id="status1" onclick="actuator(this.id)" href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-lightbulb-o fa-fw"></i>&nbsp; Light 1</a>
 	  <a id="status2" onclick="actuator(this.id)" href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-lightbulb-o fa-fw"></i>&nbsp; Light 2</a>
@@ -264,6 +263,9 @@ const int MIN_VAL = -80; // define minimum signal strength (in dBm)
 int pushButton = D0;
 int sensorPin = A0;
 int acts[4] = {0, 0, 0, 0};
+bool toggle_auto = 0;
+char auto_gui[] =R"=====(<a href="#" class="w3-bar-item w3-button w3-padding w3-green"><i class="fa fa-hand-stop-o fa-fw"></i>&nbsp; Manual</a>)=====";
+char manual_gui[] =R"=====(<a href="#" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-power-off fa-fw"></i>&nbsp; Auto</a>)=====";
 //=================================================================
 // Functions definition
 void otaconnect();
@@ -376,6 +378,14 @@ void loop()
   client.print(":");
   client.print(timeClient.getMinutes());
   client.print(webpageCode1);
+  #pragma region toggle auto
+  if(toggle_auto)
+    client.print(auto_gui);
+  else
+    client.print(manual_gui);
+  #pragma endregion toggle auto
+
+  client.print(webpageCode1_1);
   client.print(webpageCode2);
   // People
   client.print(String(person()));
