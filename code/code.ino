@@ -27,7 +27,7 @@ char webpageCode1[] =R"=====(
 </div>
 
 <!-- Sidebar/menu -->
-<nav class="w3-sidebar w3-collapse w3-white w3-animate-left" style="z-index:3;width:300px;" id="mySidebar"><br>
+<nav class="w3-sidebar w3-collapse w3-white" style="z-index:3;width:300px;" id="mySidebar"><br>
   <div class="w3-container">
     <h5><i class="fa fa-microchip"></i> Interaction</h5>
   </div>
@@ -119,27 +119,31 @@ char webpageCode5[] =R"=====(
         <table class="w3-table w3-striped w3-white">
           <tr>
             <td><i class="fa fa-lightbulb-o w3-text-green w3-large"></i></td>
-            <td>Light 1</td>)=====";
-//<td id="state1"><i class="fa fa-toggle-off"></i></td>
+            <td>Light 1</td>
+<td id="state1"><i class="fa fa-toggle-)=====";
 char webpageCode6[] =R"=====(
+"></i></td>
           </tr>
           <tr>
             <td><i class="fa fa-lightbulb-o w3-text-yellow w3-large"></i></td>
-            <td>Light 2</td>)=====";
-//<td id="state2"><i class="fa fa-toggle-off"></td>
+            <td>Light 2</td>
+<td id="state2"><i class="fa fa-toggle-)=====";
 char webpageCode7[] =R"=====(
+"></td>
           </tr>
           <tr>
             <td><i class="fa fa-snowflake-o w3-text-blue w3-large"></i></td>
-            <td>Air conditioned</td>)=====";
-//<td id="state3"><i class="fa fa-toggle-off"></i></td>
+            <td>Air conditioned</td>
+<td id="state3"><i class="fa fa-toggle-)=====";
 char webpageCode8[] =R"=====(
+"></i></td>
           </tr>
           <tr>
             <td><i class="fa fa-fire w3-text-red w3-large"></i></td>
-            <td>Heater</td>)=====";
-//<td id="state4"><i class="fa fa-toggle-off"></i></td>
+            <td>Heater</td>
+<td id="state4"><i class="fa fa-toggle-)=====";
 char webpageCode9[] =R"=====(
+"></i></td>
           </tr>
         </table>
       </div>
@@ -259,6 +263,7 @@ const int MIN_VAL = -80; // define minimum signal strength (in dBm)
 //------------------------------------------
 int pushButton = D0;
 int sensorPin = A0;
+int acts[4] = {0, 0, 0, 0};
 //=================================================================
 // Functions definition
 void otaconnect();
@@ -369,23 +374,41 @@ void loop()
   // time
   client.print(timeClient.getHours());
   client.print(":");
-  client.println(timeClient.getMinutes());
-  client.println(webpageCode1);
-  client.println(webpageCode2);
+  client.print(timeClient.getMinutes());
+  client.print(webpageCode1);
+  client.print(webpageCode2);
   // People
-  client.println(String(person()));
-  Serial.println(person());
-  client.println(webpageCode3);
+  client.print(String(person()));
+  Serial.print(person());
+  client.print(webpageCode3);
   // Temperature
-  client.println(String(temperature())+"°C");
-  client.println(webpageCode4);
+  client.print(String(temperature())+"°C");
+  client.print(webpageCode4);
   // WiFi strength
   long rssi = WiFi.RSSI();
   int strength = map(rssi, MIN_VAL, MAX_VAL, 0, 4);
-  client.println(strength);
-  client.println(webpageCode5);
-  client.println(webpageCode6);
-  client.println(webpageCode7);
-  client.println(webpageCode8);
-  client.println(webpageCode9);
+  client.print(strength);
+  client.print(webpageCode5);
+  #pragma region Home_status
+  if(acts[0])
+    client.print("on");
+  else
+    client.print("off");
+  client.print(webpageCode6);
+  if(acts[1])
+    client.print("on");
+  else
+    client.print("off");
+  client.print(webpageCode7);
+  if(acts[2])
+    client.print("on");
+  else
+    client.print("off");
+  client.print(webpageCode8);
+  if(acts[3])
+    client.print("on");
+  else
+    client.print("off");
+  #pragma endregion Home_status
+  client.print(webpageCode9);
 }
