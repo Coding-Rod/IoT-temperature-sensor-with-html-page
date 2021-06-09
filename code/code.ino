@@ -42,7 +42,7 @@ char webpageCode1[] =R"=====(
 )=====";
 //Buttons
 char webpageCode2[] =R"=====(
-	  <img src="../../assets/UCB_logo.png" alt="UCB logo" style="height: 10rem ;">	
+	  <img src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Ucatolica2.jpg" alt="UCB logo" style="height: 8rem; padding-left: 0.5em">	
     <!-- <a target="_blank" href="https://www.booked.net/weather/la-paz-13481"><img src="https://w.bookcdn.com/weather/picture/21_13481_1_1_3658db_250_2a48ba_ffffff_ffffff_1_2071c9_ffffff_0_6.png?scode=124&domid=w209&anc_id=33716" alt="booked.net"/></a>weather widget end -->
   </div>
 </nav>
@@ -227,6 +227,7 @@ var toggle = function(){
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
+#include <NTPClient.h>
 //------------------------------------------
 // OTA Variables
 #ifndef STASSID
@@ -238,6 +239,17 @@ var toggle = function(){
 WiFiServer server(80);
 const char* ssid = "Fernandez";
 const char* password = "sparkie5919";
+//------------------------------------------
+// Time variables
+//------------------------------------------
+const long utcOffsetInSeconds = 3600;
+
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+
+// Define NTP Client to get time
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
+
 //------------------------------------------
 void otaconnect();
 void otaconnect(){
@@ -306,7 +318,8 @@ void setup()
   Serial.print("STA dirección IP: ");
   Serial.println(WiFi.localIP());
   server.begin();
-  Serial.println("Servidor inicializado.");                       
+  Serial.println("Servidor inicializado.");
+  timeClient.begin();                       
 }
 //=================================================================
 void loop()
@@ -328,6 +341,10 @@ void loop()
   client.println("HTTP/1.1 200 OK");
   client.println("");
   client.println(webpageCode0);
+  // time
+  client.print(timeClient.getHours());
+  client.print(":");
+  client.println(timeClient.getMinutes());
   client.println(webpageCode1);
   client.println(webpageCode2);
   client.println(webpageCode3);
