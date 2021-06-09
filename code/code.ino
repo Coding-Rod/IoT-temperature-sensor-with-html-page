@@ -35,10 +35,10 @@ char webpageCode1[] =R"=====(
 	  <div id = "toggleauto" onclick="toggle()">)=====";
 char webpageCode1_1[] =R"=====(
     </div>
-	  <a id="status1" onclick="actuator(this.id)" href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-lightbulb-o fa-fw"></i>&nbsp; Light 1</a>
-	  <a id="status2" onclick="actuator(this.id)" href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-lightbulb-o fa-fw"></i>&nbsp; Light 2</a>
-	  <a id="status3" onclick="actuator(this.id)" href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-snowflake-o fa-fw"></i>&nbsp; Air conditioned</a>
-	  <a id="status4" onclick="actuator(this.id)" href="#" class="w3-bar-item w3-button w3-padding"><i class="fa fa-fire fa-fw"></i>&nbsp; Heater</a>
+	  <a id="status1" onClick=location.href='/led1' class="w3-bar-item w3-button w3-padding"><i class="fa fa-lightbulb-o fa-fw"></i>&nbsp; Light 1</a>
+	  <a id="status2" onClick=location.href='/led2' class="w3-bar-item w3-button w3-padding"><i class="fa fa-lightbulb-o fa-fw"></i>&nbsp; Light 2</a>
+	  <a id="status3" onClick=location.href='/led3' class="w3-bar-item w3-button w3-padding"><i class="fa fa-snowflake-o fa-fw"></i>&nbsp; Air conditioned</a>
+	  <a id="status4" onClick=location.href='/led4' class="w3-bar-item w3-button w3-padding"><i class="fa fa-fire fa-fw"></i>&nbsp; Heater</a>
 )=====";
 //Buttons
 char webpageCode2[] =R"=====(
@@ -266,6 +266,7 @@ int acts[4] = {0, 0, 0, 0};
 bool toggle_auto = 0;
 char auto_gui[] =R"=====(<a href="#" class="w3-bar-item w3-button w3-padding w3-green"><i class="fa fa-hand-stop-o fa-fw"></i>&nbsp; Manual</a>)=====";
 char manual_gui[] =R"=====(<a href="#" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-power-off fa-fw"></i>&nbsp; Auto</a>)=====";
+String wifi_level[] = {"VERY LOW", "LOW", "HIGH", "VERY HIGH"};
 //=================================================================
 // Functions definition
 void otaconnect();
@@ -370,6 +371,17 @@ void loop()
   // LEE PETICIONES
   String peticion = client.readStringUntil('r');
   client.flush();
+
+  if (peticion.indexOf(String("/led1")) != -1)
+      acts[0] = !acts[0]; 
+  if (peticion.indexOf(String("/led2")) != -1)
+      acts[1] = !acts[1]; 
+  if (peticion.indexOf(String("/led3")) != -1)
+      acts[2] = !acts[2]; 
+  if (peticion.indexOf(String("/led4")) != -1)
+      acts[3] = !acts[3]; 
+
+  #pragma region client
   client.println("HTTP/1.1 200 OK");
   client.println("");
   client.println(webpageCode0);
@@ -396,8 +408,8 @@ void loop()
   client.print(webpageCode4);
   // WiFi strength
   long rssi = WiFi.RSSI();
-  int strength = map(rssi, MIN_VAL, MAX_VAL, 0, 4);
-  client.print(strength);
+  int strength = map(rssi, MIN_VAL, MAX_VAL, 0, 3);
+  client.print(wifi_level[strength]);
   client.print(webpageCode5);
   #pragma region Home_status
   if(acts[0])
@@ -421,4 +433,5 @@ void loop()
     client.print("off");
   #pragma endregion Home_status
   client.print(webpageCode9);
+  #pragma endregion client
 }
