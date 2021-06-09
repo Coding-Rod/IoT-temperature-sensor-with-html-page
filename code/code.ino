@@ -5,6 +5,7 @@ char webpageCode0[] =R"=====(
 <title>Final Proyect IoT</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="2">
 <link rel="icon" href="icon.png" type="image/x-icon">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
@@ -243,7 +244,6 @@ const char* password = "sparkie5919";
 // Time variables
 //------------------------------------------
 const long utcOffsetInSeconds = 3600;
-
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 // Define NTP Client to get time
@@ -251,7 +251,21 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
 //------------------------------------------
+// Wifi strength variables
+const int MAX_VAL = -20; // define maximum signal strength (in dBm)
+const int MIN_VAL = -80; // define minimum signal strength (in dBm)
+//------------------------------------------
+// Pinout
+//------------------------------------------
+int pushButton = D0;
+int sensorPin = A0;
+//=================================================================
+// Functions definition
 void otaconnect();
+bool person();
+int temperature();
+
+// Functions
 void otaconnect(){
   Serial.println("Booting");
   WiFi.mode(WIFI_STA);
@@ -298,16 +312,24 @@ void otaconnect(){
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 }
+bool person(){
+    return digitalRead(pushButton);
+}
+int temperature(){
+    return (analogRead(sensorPin) / 1023.0) * 500;
+}
 
-//=================================================================
 void setup()
 {
   otaconnect();
   server.begin();                         //inicializamos el servidor
+  timeClient.begin();
+  timeClient.setTimeOffset(-14400);
   WiFi.mode(WIFI_STA);    // Accsses Point por software
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
   delay(500);
+  Serial.begin(115200);
   Serial.print(".");
   }
   WiFi.setAutoReconnect(true);
@@ -319,12 +341,15 @@ void setup()
   Serial.println(WiFi.localIP());
   server.begin();
   Serial.println("Servidor inicializado.");
-  timeClient.begin();                       
+
+  // pinout
+  pinMode(pushButton, INPUT);                   
 }
 //=================================================================
 void loop()
 {
   ArduinoOTA.handle();
+  timeClient.update();
   // STATION CONFIGURATION
   WiFiClient client = server.available();  
   if (!client) {
@@ -347,10 +372,20 @@ void loop()
   client.println(timeClient.getMinutes());
   client.println(webpageCode1);
   client.println(webpageCode2);
+  // People
+  client.println(String(person()));
+  Serial.println(person());
   client.println(webpageCode3);
+  // Temperature
+  client.println(String(temperature())+"°C");
   client.println(webpageCode4);
+  // WiFi strength
+  long rssi = WiFi.RSSI();
+  int strength = map(rssi, MIN_VAL, MAX_VAL, 0, 4);
+  client.println(strength);
   client.println(webpageCode5);
   client.println(webpageCode6);
   client.println(webpageCode7);
   client.println(webpageCode8);
+  client.println(webpageCode9);
 }

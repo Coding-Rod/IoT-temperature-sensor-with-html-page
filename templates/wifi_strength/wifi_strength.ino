@@ -30,8 +30,6 @@ void setup() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   Serial.println("");
-
-  pixels.begin(); // Initialize NeoPixel LEDs
 }
 
 void loop () {
@@ -39,6 +37,6 @@ void loop () {
   Serial.print("RSSI: ");   // print the received signal strength:
   //Serial.println(rssi);
   int strength = map(rssi, MIN_VAL, MAX_VAL, 0, 4);
-  
+  Serial.println(strength);
   delay(1000);
 }
