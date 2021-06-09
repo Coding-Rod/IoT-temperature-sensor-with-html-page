@@ -182,9 +182,9 @@ function w3_close() {
 let manual = ['<a href="#" class="w3-bar-item w3-button w3-padding w3-green"><i class="fa fa-hand-stop-o fa-fw"></i>&nbsp; Manual</a>', '<a href="#" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-power-off fa-fw"></i>&nbsp; Auto</a>']
 let flag = 0;
 var sts = {'status1': ['state1',0],
-              'status2': ['state2',0],
-              'status3': ['state3',0],
-              'status4': ['state4',0]
+           'status2': ['state2',0],
+           'status3': ['state3',0],
+           'status4': ['state4',0]
 }
 
 function onoff(x){
@@ -222,48 +222,103 @@ var toggle = function(){
 //============================================
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+#include <ESP8266WiFi.h>
 //------------------------------------------
-ESP8266WebServer server(80);
+// OTA Variables
+#ifndef STASSID
+#define STASSID "Fernandez"
+#define STAPSK  "sparkie5919"
+#endif
+#define BLYNK_PRINT Serial
+//------------------------------------------
+WiFiServer server(80);
 const char* ssid = "Fernandez";
 const char* password = "sparkie5919";
 //------------------------------------------
-void webpage()
-{
-  String hour = "00:00";
-  
-  int c = 0;
-  String text;
-  text = strtok(webpageCode, "00:00");
-  while (text != NULL)
-  {
-    text += strtok (NULL, "00:00");
-    switch k(c)
-    {
-    case 0:
-      text += hour;
-      break;
-    
-    default:
-      break;
-    }
-    c++;
+void otaconnect();
+void otaconnect(){
+  Serial.println("Booting");
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    Serial.println("Connection Failed! Rebooting...");
+    delay(5000);
+    ESP.restart();
   }
-  server.send(200,"text/html", webpageCode);
+
+  ArduinoOTA.onStart([]() {
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH) {
+      type = "sketch";
+    } else { // U_FS
+      type = "filesystem";
+    }
+
+    // NOTE: if updating FS this would be the place to unmount FS using FS.end()
+    Serial.println("Start updating " + type);
+  });
+  ArduinoOTA.onEnd([]() {
+    Serial.println("\nEnd");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) {
+      Serial.println("Auth Failed");
+    } else if (error == OTA_BEGIN_ERROR) {
+      Serial.println("Begin Failed");
+    } else if (error == OTA_CONNECT_ERROR) {
+      Serial.println("Connect Failed");
+    } else if (error == OTA_RECEIVE_ERROR) {
+      Serial.println("Receive Failed");
+    } else if (error == OTA_END_ERROR) {
+      Serial.println("End Failed");
+    }
+  });
+  ArduinoOTA.begin();
+  Serial.println("Ready");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
 }
+
 //=================================================================
 void setup()
 {
-  Serial.begin(115200);
-  WiFi.begin(ssid, password);
-  while(WiFi.status()!=WL_CONNECTED){delay(500);Serial.print(".");}
-  Serial.println();
-  Serial.print("IP Address: "); Serial.println(WiFi.localIP());
-
-  server.on("/", webpage);
-  server.begin();
+  otaconnect();
+  WiFi.begin(ssid, password);  
+  while (WiFi.status() != WL_CONNECTED)
+    delay(500);
+  server.begin();                         
 }
 //=================================================================
 void loop()
 {
-  server.handleClient();
+  ArduinoOTA.handle();
+  WiFiClient client = server.available();  
+  if (!client) {
+    return;
+  }
+
+  // Espera hasta que el cliente envía alguna petición  while(!client.available()){
+    delay(1);
+  }
+
+  // Lee la petición
+  String peticion = client.readStringUntil('\r');  client.flush();
+  client.println("HTTP/1.1 200 OK");
+  client.println("");
+  Client.println(webpageCode0);
+  Client.println(webpageCode1);
+  Client.println(webpageCode2);
+  Client.println(webpageCode3);
+  Client.println(webpageCode4);
+  Client.println(webpageCode5);
+  Client.println(webpageCode6);
+  Client.println(webpageCode7);
+  Client.println(webpageCode8);
 }
