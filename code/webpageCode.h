@@ -1,7 +1,7 @@
 //=========================================
 //HTML + CSS + JavaScript codes for webpage
 //=========================================
-const char webpageCode[] =
+char webpageCode[] =
 R"=====(
 <!DOCTYPE html>
 <html>
