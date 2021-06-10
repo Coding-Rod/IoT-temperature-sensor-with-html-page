@@ -32,7 +32,7 @@ char webpageCode1[] =R"=====(
     <h5><i class="fa fa-microchip"></i> Interaction</h5>
   </div>
   <div class="w3-bar-block">
-	  <div id = "toggleauto" onclick="toggle()">)=====";
+	  <div id = "toggleauto" onclick="toggle()" onClick=location.href='/auto'>)=====";
 char webpageCode1_1[] =R"=====(
     </div>
 	  <a id="status1" onClick=location.href='/led1' class="w3-bar-item w3-button w3-padding"><i class="fa fa-lightbulb-o fa-fw"></i>&nbsp; Light 1</a>
@@ -263,7 +263,6 @@ const int MIN_VAL = -80; // define minimum signal strength (in dBm)
 int pushButton = D0;
 int sensorPin = A0;
 int acts[4] = {0, 0, 0, 0};
-int pacts[4] = {0, 0, 0, 0};
 bool toggle_auto = 0;
 char auto_gui[] =R"=====(<a href="#" class="w3-bar-item w3-button w3-padding w3-green"><i class="fa fa-hand-stop-o fa-fw"></i>&nbsp; Manual</a>)=====";
 char manual_gui[] =R"=====(<a href="#" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-power-off fa-fw"></i>&nbsp; Auto</a>)=====";
@@ -377,14 +376,21 @@ void loop()
   String peticion = client.readStringUntil('r');
   client.flush();
 
-  if (peticion.indexOf(String("/led1")) != -1)
-      acts[0] = !acts[0]; 
-  if (peticion.indexOf(String("/led2")) != -1)
+  if (peticion.indexOf(String("/auto")) != -1){
+      toggle_auto = !toggle_auto;
+  }
+  if (peticion.indexOf(String("/led1")) != -1){
+      acts[0] = !acts[0];
+  }
+  if (peticion.indexOf(String("/led2")) != -1){
       acts[1] = !acts[1]; 
-  if (peticion.indexOf(String("/led3")) != -1)
+  }
+  if (peticion.indexOf(String("/led3")) != -1){
       acts[2] = !acts[2]; 
-  if (peticion.indexOf(String("/led4")) != -1)
+  }
+  if (peticion.indexOf(String("/led4")) != -1){
       acts[3] = !acts[3]; 
+  }
 
   #pragma region client
   client.println("HTTP/1.1 200 OK");
