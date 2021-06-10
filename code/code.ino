@@ -263,6 +263,7 @@ const int MIN_VAL = -80; // define minimum signal strength (in dBm)
 int pushButton = D0;
 int sensorPin = A0;
 int acts[4] = {0, 0, 0, 0};
+int pacts[4] = {0, 0, 0, 0};
 bool toggle_auto = 0;
 char auto_gui[] =R"=====(<a href="#" class="w3-bar-item w3-button w3-padding w3-green"><i class="fa fa-hand-stop-o fa-fw"></i>&nbsp; Manual</a>)=====";
 char manual_gui[] =R"=====(<a href="#" class="w3-bar-item w3-button w3-padding w3-blue"><i class="fa fa-power-off fa-fw"></i>&nbsp; Auto</a>)=====";
@@ -351,7 +352,11 @@ void setup()
   Serial.println("Servidor inicializado.");
 
   // pinout
-  pinMode(pushButton, INPUT);                   
+  pinMode(pushButton, INPUT);
+  pinMode(D1, OUTPUT);
+  pinMode(D2, OUTPUT);
+  pinMode(D3, OUTPUT);
+  pinMode(D4, OUTPUT);
 }
 //=================================================================
 void loop()
@@ -412,26 +417,21 @@ void loop()
   client.print(wifi_level[strength]);
   client.print(webpageCode5);
   #pragma region Home_status
-  if(acts[0])
-    client.print("on");
-  else
-    client.print("off");
+  client.print(acts[0]?"on":"off");
+  digitalWrite(D1, acts[0]?HIGH:LOW);
   client.print(webpageCode6);
-  if(acts[1])
-    client.print("on");
-  else
-    client.print("off");
+
+  client.print(acts[1]?"on":"off");
+  digitalWrite(D2, acts[1]?HIGH:LOW);
   client.print(webpageCode7);
-  if(acts[2])
-    client.print("on");
-  else
-    client.print("off");
+
+  client.print(acts[2]?"on":"off");
+  digitalWrite(D3, acts[2]?HIGH:LOW);
   client.print(webpageCode8);
-  if(acts[3])
-    client.print("on");
-  else
-    client.print("off");
-  #pragma endregion Home_status
+
+  client.print(acts[3]?"on":"off");
+  digitalWrite(D4, acts[3]?HIGH:LOW);
   client.print(webpageCode9);
+  #pragma endregion Home_status
   #pragma endregion client
 }
